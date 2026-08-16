@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My AI Chatbot</title>
+  <meta name="description" content="A powerful AI chatbot powered by NVIDIA NIM — supporting multiple frontier models." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Marked.js for Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- KaTeX for Math -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElementReady = true"></script>
+
+  <!-- Highlight.js for code syntax -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Background FX -->
+  <div class="bg-mesh"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- SIDEBAR                                                  -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="logo-text">My AI</span>
+      </div>
+      <button class="icon-btn" id="sidebar-close" title="Close Sidebar">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+    </div>
+
+    <button class="new-chat-btn" id="newChatBtn">
+      <i class="fa-solid fa-plus"></i> New Chat
+    </button>
+
+    <div class="sidebar-section-label">Recent</div>
+    <div class="chat-history" id="chatHistory"></div>
+
+    <div class="sidebar-footer">
+      <div class="status-dot-row">
+        <div class="status-dot"></div>
+        <span id="current-model-label">Llama 3.1 70B</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- MAIN LAYOUT                                              -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="app-layout" id="appLayout">
+
+    <!-- Topbar -->
+    <header class="topbar" id="topbar">
+      <div class="topbar-left">
+        <button class="icon-btn" id="sidebar-toggle" title="Toggle Sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <span class="topbar-title" id="chatTitle">New Conversation</span>
+      </div>
+      <div class="topbar-right">
+        <a href="monitor.html" target="_blank" class="icon-btn" id="monitor-btn" title="System Monitor">
+          <i class="fa-solid fa-server"></i>
+        </a>
+        <button class="icon-btn" id="clear-btn" title="Clear Chat">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Messages -->
+    <div class="messages-area" id="messagesArea">
+
+      <!-- Welcome Screen -->
+      <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-logo">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
+            <defs>
+              <linearGradient id="wg" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#76b900"/>
+                <stop offset="100%" stop-color="#00d4ff"/>
+              </linearGradient>
+            </defs>
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="url(#wg)" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="url(#wg)" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="url(#wg)" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h1 class="welcome-heading">How can I help you today?</h1>
+        <p class="welcome-sub">Powered by NVIDIA NIM · Multiple frontier models</p>
+
+        <div class="suggestion-grid">
+          <button class="suggestion-card" data-prompt="Explain the difference between machine learning, deep learning, and AI">
+            <span class="sg-icon">🤖</span>
+            <span>Explain ML vs Deep Learning vs AI</span>
+          </button>
+          <button class="suggestion-card" data-prompt="Write a Python function to implement binary search">
+            <span class="sg-icon">💻</span>
+            <span>Write a binary search function in Python</span>
+          </button>
+          <button class="suggestion-card" data-prompt="What are the key principles of clean code?">
+            <span class="sg-icon">✨</span>
+            <span>Key principles of clean code</span>
+          </button>
+          <button class="suggestion-card" data-prompt="Explain how transformers work in LLMs">
+            <span class="sg-icon">🧠</span>
+            <span>How do transformers work in LLMs?</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Message list -->
+      <div class="messages-list" id="messagesList"></div>
+    </div>
+
+    <!-- ─── Input Area ─── -->
+    <div class="input-area" id="inputArea">
+      <div class="input-wrapper" id="inputWrapper">
+
+        <!-- File preview bar (shown when a file is attached) -->
+        <div id="filePreviewBar" class="file-preview-bar">
+          <div class="fp-info">
+            <i id="fpIcon" class="fa-solid fa-file"></i>
+            <span id="fpName">filename.txt</span>
+          </div>
+          <button id="fpRemoveBtn" class="fp-remove" title="Remove attachment">
+            <i class="fa-solid fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Toolbar top row -->
+        <div class="input-toolbar">
+          <div class="toolbar-left">
+            <!-- File Attach Button -->
+            <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.txt,.md,.csv,.json,.js,.html,.css,.doc,.docx,.ppt,.pptx" style="display:none">
+            <label for="fileInput" class="attach-btn" id="attachBtn" title="Attach image or file (Ctrl+V to paste)">
+              <i class="fa-solid fa-paperclip"></i>
+            </label>
+
+            <!-- Model Selector -->
+            <div class="model-selector-wrapper">
+              <button class="model-selector-btn" id="modelSelectorBtn" title="Select AI Model">
+                <i class="fa-solid fa-microchip"></i>
+                <span id="modelSelectorLabel">Llama 3.1 8B</span>
+                <i class="fa-solid fa-chevron-down model-chevron"></i>
+              </button>
+
+              <div class="model-dropdown" id="modelDropdown">
+
+                <!-- ═══ NVIDIA NIM via OpenAI endpoint ═══ -->
+                <div class="model-category">🟢 OpenAI via NVIDIA NIM</div>
+                <div class="model-opt" data-model="gpt-oss-120b">
+                  <div class="mo-title"><i class="fa-solid fa-star"></i> GPT-OSS 120B</div>
+                  <div class="mo-desc">OpenAI open-source 120B — best overall</div>
+                </div>
+                <div class="model-opt" data-model="gpt-oss-20b">
+                  <div class="mo-title"><i class="fa-solid fa-gauge-high"></i> GPT-OSS 20B</div>
+                  <div class="mo-desc">OpenAI open-source 20B — fast & capable</div>
+                </div>
+
+                <div class="model-category">⚡ Meta Llama via NVIDIA NIM</div>
+                <div class="model-opt" data-model="llama-3.1-70b">
+                  <div class="mo-title"><i class="fa-solid fa-bolt"></i> Llama 3.1 70B</div>
+                  <div class="mo-desc">Flagship Meta model — great quality</div>
+                </div>
+                <div class="model-opt" data-model="llama-3.3-70b">
+                  <div class="mo-title"><i class="fa-solid fa-fire"></i> Llama 3.3 70B</div>
+                  <div class="mo-desc">Latest Llama generation</div>
+                </div>
+                <div class="model-opt" data-model="llama-3.1-8b" data-badge="Default">
+                  <div class="mo-title"><i class="fa-solid fa-feather"></i> Llama 3.1 8B <span class="mo-badge">Default</span></div>
+                  <div class="mo-desc">Ultra-fast, lightweight</div>
+                </div>
+
+                <div class="model-category">⚡ Groq LPU (Direct API)</div>
+                <div class="model-opt" data-model="llama-3.3-70b-versatile">
+                  <div class="mo-title"><i class="fa-solid fa-bolt-lightning"></i> Llama 3.3 70B (Groq)</div>
+                  <div class="mo-desc">Ultra-fast inference via Groq</div>
+                </div>
+                <div class="model-opt" data-model="mixtral-8x7b-32768">
+                  <div class="mo-title"><i class="fa-solid fa-layer-group"></i> Mixtral 8x7B (Groq)</div>
+                  <div class="mo-desc">MoE architecture running on LPU</div>
+                </div>
+                <div class="model-category">🔵 DeepSeek via NVIDIA NIM</div>
+                <div class="model-opt" data-model="deepseek-v4-pro">
+                  <div class="mo-title"><i class="fa-solid fa-brain"></i> DeepSeek V4 Pro <span class="mo-badge mo-badge-blue">New</span></div>
+                  <div class="mo-desc">DeepSeek's most powerful flagship model</div>
+                </div>
+                <div class="model-opt" data-model="deepseek-v4-flash">
+                  <div class="mo-title"><i class="fa-solid fa-bolt"></i> DeepSeek V4 Flash <span class="mo-badge mo-badge-blue">New</span></div>
+                  <div class="mo-desc">Fast DeepSeek V4 for daily tasks</div>
+                </div>
+                <div class="model-opt" data-model="deepseek-r1-llama">
+                  <div class="mo-title"><i class="fa-solid fa-atom"></i> DeepSeek-R1 Llama 70B</div>
+                  <div class="mo-desc">Advanced reasoning via Llama distillation</div>
+                </div>
+
+                <div class="model-category">🟣 Zhipu GLM via NVIDIA NIM</div>
+                <div class="model-opt" data-model="glm-5.2">
+                  <div class="mo-title"><i class="fa-solid fa-crown"></i> GLM-5.2 <span class="mo-badge mo-badge-purple">New</span></div>
+                  <div class="mo-desc">Zhipu's latest flagship via NVIDIA NIM</div>
+                </div>
+
+                <div class="model-category">🤖 Mistral via NVIDIA NIM</div>
+                <div class="model-opt" data-model="mistral-7b">
+                  <div class="mo-title"><i class="fa-solid fa-wind"></i> Mistral 7B</div>
+                  <div class="mo-desc">Efficient and capable</div>
+                </div>
+                <div class="model-opt" data-model="mixtral-8x7b">
+                  <div class="mo-title"><i class="fa-solid fa-layer-group"></i> Mixtral 8×7B</div>
+                  <div class="mo-desc">MoE architecture, very strong</div>
+                </div>
+
+                <div class="model-category">💎 Other via NVIDIA NIM</div>
+                <div class="model-opt" data-model="gemma-3-27b">
+                  <div class="mo-title"><i class="fa-solid fa-gem"></i> Gemma 3 27B</div>
+                  <div class="mo-desc">Google's open model</div>
+                </div>
+                <div class="model-opt" data-model="gemma-4-31b-it">
+                  <div class="mo-title"><i class="fa-solid fa-gem"></i> Gemma 4 31B</div>
+                  <div class="mo-desc">Google's latest open model</div>
+                </div>
+                <div class="model-opt" data-model="phi-4">
+                  <div class="mo-title"><i class="fa-solid fa-microscope"></i> Microsoft Phi-4</div>
+                  <div class="mo-desc">Compact yet powerful</div>
+                </div>
+                <div class="model-opt" data-model="qwen-72b">
+                  <div class="mo-title"><i class="fa-solid fa-dragon"></i> Qwen 2.5 72B</div>
+                  <div class="mo-desc">Alibaba's large model</div>
+                </div>
+
+                <!-- ═══ Google Gemini ═══ -->
+                <div class="model-category">✨ Google Gemini (requires API key)</div>
+                <div class="model-opt" data-model="gemini-3.1-pro">
+                  <div class="mo-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Gemini 3.1 Pro</div>
+                  <div class="mo-desc">Google's most advanced reasoning model</div>
+                </div>
+                <div class="model-opt" data-model="gemini-3.5-flash">
+                  <div class="mo-title"><i class="fa-solid fa-bolt"></i> Gemini 3.5 Flash</div>
+                  <div class="mo-desc">Google's fast multi-modal model</div>
+                </div>
+                <div class="model-opt" data-model="gemini-3.6-flash">
+                  <div class="mo-title"><i class="fa-solid fa-fire-flame-curved"></i> Gemini 3.6 Flash <span class="mo-badge">Latest</span></div>
+                  <div class="mo-desc">Newest Gemini Flash generation</div>
+                </div>
+                <div class="model-opt" data-model="gemini-2.5-pro">
+                  <div class="mo-title"><i class="fa-solid fa-star"></i> Gemini 2.5 Pro</div>
+                  <div class="mo-desc">High-capability Pro model</div>
+                </div>
+                <div class="model-opt" data-model="gemini-2.5-flash">
+                  <div class="mo-title"><i class="fa-solid fa-gauge-high"></i> Gemini 2.5 Flash</div>
+                  <div class="mo-desc">Fast and capable Flash model</div>
+                </div>
+                <div class="model-opt" data-model="gemini-2.0-flash">
+                  <div class="mo-title"><i class="fa-solid fa-circle"></i> Gemini 2.0 Flash</div>
+                  <div class="mo-desc">Reliable everyday Gemini model</div>
+                </div>
+                <div class="model-opt" data-model="gemini-flash-latest">
+                  <div class="mo-title"><i class="fa-solid fa-feather"></i> Gemini Flash (Free Tier)</div>
+                  <div class="mo-desc">Gemini 1.5 Flash — free tier access</div>
+                </div>
+
+                <!-- ═══ DeepSeek Direct API ═══ -->
+                <div class="model-category">🔬 DeepSeek Direct (requires API key)</div>
+                <div class="model-opt" data-model="deepseek-reasoner">
+                  <div class="mo-title"><i class="fa-solid fa-brain"></i> DeepSeek-R1 (Reasoner)</div>
+                  <div class="mo-desc">Full reasoning model, step-by-step thinking</div>
+                </div>
+                <div class="model-opt" data-model="deepseek-chat">
+                  <div class="mo-title"><i class="fa-solid fa-comments"></i> DeepSeek-V3 Chat</div>
+                  <div class="mo-desc">DeepSeek's fast conversational model</div>
+                </div>
+                <div class="model-opt" data-model="deepseek-coder">
+                  <div class="mo-title"><i class="fa-solid fa-code"></i> DeepSeek Coder</div>
+                  <div class="mo-desc">Specialized for code generation</div>
+                </div>
+
+                <!-- ═══ Zhipu GLM Direct ═══ -->
+                <div class="model-category">🇨🇳 Zhipu GLM Direct (requires API key)</div>
+                <div class="model-opt" data-model="glm-4-plus">
+                  <div class="mo-title"><i class="fa-solid fa-crown"></i> GLM-4 Plus</div>
+                  <div class="mo-desc">Zhipu's most powerful GLM-4 variant</div>
+                </div>
+                <div class="model-opt" data-model="glm-4">
+                  <div class="mo-title"><i class="fa-solid fa-star"></i> GLM-4 Pro</div>
+                  <div class="mo-desc">Capable and multilingual</div>
+                </div>
+                <div class="model-opt" data-model="glm-4-air">
+                  <div class="mo-title"><i class="fa-solid fa-wind"></i> GLM-4 Air</div>
+                  <div class="mo-desc">Lightweight and fast</div>
+                </div>
+                <div class="model-opt" data-model="glm-4-long">
+                  <div class="mo-title"><i class="fa-solid fa-scroll"></i> GLM-4 Long</div>
+                  <div class="mo-desc">Extended context window model</div>
+                </div>
+                <div class="model-opt" data-model="glm-4-flash">
+                  <div class="mo-title"><i class="fa-solid fa-bolt"></i> GLM-4 Flash</div>
+                  <div class="mo-desc">Ultra-fast GLM variant</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+            <!-- Persona Selector -->
+            <div class="persona-selector-wrapper">
+              <button class="persona-selector-btn" id="personaSelectorBtn" title="Switch Persona">
+                <i class="fa-solid fa-masks-theater"></i>
+                <span id="personaSelectorLabel">General</span>
+                <i class="fa-solid fa-chevron-down model-chevron"></i>
+              </button>
+              <div class="persona-dropdown" id="personaDropdown">
+                <div class="persona-opt active" data-persona="general">
+                  <div class="mo-title"><i class="fa-solid fa-circle-info"></i> General Assistant</div>
+                  <div class="mo-desc">Balanced, helpful responses</div>
+                </div>
+                <div class="persona-opt" data-persona="coder">
+                  <div class="mo-title"><i class="fa-solid fa-code"></i> Code Expert</div>
+                  <div class="mo-desc">Production-ready code with best practices</div>
+                </div>
+                <div class="persona-opt" data-persona="creative">
+                  <div class="mo-title"><i class="fa-solid fa-palette"></i> Creative Writer</div>
+                  <div class="mo-desc">Vivid, imaginative writing</div>
+                </div>
+                <div class="persona-opt" data-persona="summarizer">
+                  <div class="mo-title"><i class="fa-solid fa-compress"></i> Brief Summarizer</div>
+                  <div class="mo-desc">Concise, bullet-point answers</div>
+                </div>
+                <div class="persona-opt" data-persona="math">
+                  <div class="mo-title"><i class="fa-solid fa-calculator"></i> Math Tutor</div>
+                  <div class="mo-desc">Step-by-step math solutions with LaTeX</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="toolbar-right">
+            <!-- Pin button removed as requested -->
+          </div>
+        </div>
+
+        <!-- Input row bottom -->
+        <div class="input-row">
+          <textarea id="chatInput" class="chat-textarea" rows="1"
+            placeholder="Message My AI..."></textarea>
+          <button class="send-btn" id="sendBtn" disabled title="Send">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+
+        <!-- Stop generating button (hidden by default) -->
+        <div class="stop-generating-bar" id="stopGeneratingBar" style="display:none">
+          <button class="stop-btn" id="stopBtn">
+            <span class="stop-dot"></span>
+            Stop generating
+          </button>
+        </div>
+
+      </div>
+      <p class="input-hint">My AI can make mistakes. Verify important info.</p>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- FLOATING CHATBOT TOGGLE (visible when sidebar hidden)   -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <button class="chatbot-fab" id="chatbotFab" style="display:none" title="Open AI Chat">
+    <i class="fa-solid fa-message"></i>
+  </button>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>System Monitor - AI Models</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/许可/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --panel-bg: rgba(20, 25, 38, 0.7);
+      --border: rgba(255,255,255,0.08);
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #76b900;
+      --accent-glow: rgba(118, 185, 0, 0.15);
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(118, 185, 0, 0.05), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(56, 189, 248, 0.03), transparent 25%);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(11, 15, 25, 0.8);
+      backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    header h1 i { color: var(--accent); }
+
+    .btn {
+      background: rgba(118, 185, 0, 0.1);
+      border: 1px solid rgba(118, 185, 0, 0.3);
+      color: var(--accent);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+    
+    .btn:hover {
+      background: rgba(118, 185, 0, 0.2);
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    main {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* System Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Model Grid */
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .model-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    
+    .model-card:hover {
+      border-color: rgba(255,255,255,0.2);
+      transform: translateY(-2px);
+    }
+
+    .mc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .mc-name {
+      font-weight: 600;
+      color: #fff;
+      font-size: 1.05rem;
+    }
+
+    .mc-provider {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.05);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .mc-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.2);
+    }
+    
+    .status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-ok .status-dot { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    .status-error .status-dot { background: var(--error); box-shadow: 0 0 8px var(--error); }
+    .status-standby .status-dot { background: var(--warning); box-shadow: 0 0 8px var(--warning); }
+    .status-pending .status-dot { 
+      background: var(--text-muted); 
+      animation: pulse 1s infinite alternate; 
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    .status-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Loading overlay */
+    #loadingOverlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(11, 15, 25, 0.8);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      gap: 1rem;
+      transition: opacity 0.3s;
+    }
+    #loadingOverlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(118, 185, 0, 0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1><i class="fa-solid fa-server"></i> System Monitor</h1>
+    <button class="btn" id="refreshBtn" onclick="runDiagnostics()">
+      <i class="fa-solid fa-rotate-right"></i> Run Diagnostics
+    </button>
+  </header>
+
+  <main>
+    <div class="section-title"><i class="fa-solid fa-microchip"></i> System Health</div>
+    <div class="stats-grid" id="statsGrid">
+      <!-- Populated via JS -->
+    </div>
+
+    <div class="section-title"><i class="fa-solid fa-network-wired"></i> AI Model Status</div>
+    <div class="model-grid" id="modelGrid">
+      <!-- Populated via JS -->
+    </div>
+  </main>
+
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+    <div style="color: var(--accent); font-weight: 500;">Pinging AI Models...</div>
+    <div style="font-size: 0.85rem; color: var(--text-muted);">This may take up to 10 seconds</div>
+  </div>
+
+  <script>
+    // Include fontawesome script safely for icons (since link in head might need kit)
+    const script = document.createElement('script');
+    script.src = "https://kit.fontawesome.com/a076d05399.js";
+    script.crossOrigin = "anonymous";
+    document.head.appendChild(script);
+    // Alternatively, rely on typical CDN if above fails. We will use a standard one here.
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+    document.head.appendChild(link);
+
+    const statsGrid = document.getElementById('statsGrid');
+    const modelGrid = document.getElementById('modelGrid');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    async function fetchSystemHealth() {
+      try {
+        const res = await fetch('/api/admin/system-health');
+        if (!res.ok) throw new Error('Health check failed');
+        const data = await res.json();
+        
+        statsGrid.innerHTML = `
+          <div class="stat-card">
+            <div class="stat-label">Status</div>
+            <div class="stat-val" style="color: var(--success);">${data.status || 'Online'}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Uptime</div>
+            <div class="stat-val">${formatUptime(data.uptime)}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Memory Usage</div>
+            <div class="stat-val">${data.memoryMB} MB</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Node Version</div>
+            <div class="stat-val" style="font-size: 1.2rem; line-height: 1.5rem;">${data.nodeVersion}</div>
+          </div>
+        `;
+      } catch (err) {
+        statsGrid.innerHTML = `<div style="color:var(--error)">Failed to load system health: ${err.message}</div>`;
+      }
+    }
+
+    function formatUptime(seconds) {
+      if (!seconds) return '0s';
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = seconds % 60;
+      if (h > 0) return `${h}h ${m}m`;
+      if (m > 0) return `${m}m ${s}s`;
+      return `${s}s`;
+    }
+
+    async function runDiagnostics() {
+      refreshBtn.disabled = true;
+      loadingOverlay.classList.remove('hidden');
+      
+      // Clear models first
+      modelGrid.innerHTML = '';
+      
+      // Fetch health in parallel
+      fetchSystemHealth();
+
+      try {
+        const res = await fetch('/api/admin/test-ai', { method: 'POST' });
+        if (!res.ok) throw new Error('Test AI failed');
+        
+        const data = await res.json();
+        const results = data.results || {};
+        
+        // Render models
+        for (const [key, info] of Object.entries(results)) {
+          let statusClass = 'status-pending';
+          if (info.ok) {
+            statusClass = info.status.includes('Standby') ? 'status-standby' : 'status-ok';
+          } else {
+            statusClass = 'status-error';
+          }
+
+          const card = document.createElement('div');
+          card.className = 'model-card';
+          card.innerHTML = `
+            <div class="mc-header">
+              <div class="mc-name">${info.label || key}</div>
+              <div class="mc-provider">${info.provider || 'unknown'}</div>
+            </div>
+            <div class="mc-status ${statusClass}">
+              <div class="status-dot"></div>
+              <div class="status-text" title="${info.message || info.status}">${info.message || info.status}</div>
+            </div>
+          `;
+          modelGrid.appendChild(card);
+        }
+
+      } catch (err) {
+        modelGrid.innerHTML = `<div style="color:var(--error); grid-column: 1/-1;">Error running diagnostics: ${err.message}</div>`;
+      } finally {
+        loadingOverlay.classList.add('hidden');
+        refreshBtn.disabled = false;
+      }
+    }
+
+    // Initial load
+    window.addEventListener('DOMContentLoaded', runDiagnostics);
+
+  </script>
+</body>
+</html>
