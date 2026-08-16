@@ -213,7 +213,3 @@ Maintained by TharinduMR — https://github.com/TharinduMR
 
 ---
 
-Notes / Next steps I can help with:
-- Update the README to include detected endpoints and actual env variables from your code (I can scan the repo to extract these)
-- Add screenshots or a demo GIF (upload images to /assets and I will insert them)
-- Create CONTRIBUTING.md and CODE_OF_CONDUCT
