@@ -19,6 +19,7 @@ Table of Contents
   - Install
   - Configuration
   - Run
+- Obtaining an NVIDIA API key (free provider)
 - API Reference
 - Docker / Deployment
 - Development & Tests
@@ -84,7 +85,7 @@ Recommended environment variables (adjust to your repository's implementation):
 - PORT — port Express listens on (default: 3000)
 - MODEL_PROVIDER — which model provider to use (e.g. nvidia, openai, local)
 - NVIDIA_ENDPOINT — URL for NVIDIA inference server (if applicable)
-- API_KEY — API key for hosted providers
+- NVIDIA_API_KEY — API key or bearer token for NVIDIA Build / inference gateway
 - LOG_LEVEL — logging verbosity (debug, info, warn, error)
 
 Run (development)
@@ -96,6 +97,50 @@ node server.js
 ```
 
 Open http://localhost:3000 to use the chat UI.
+
+Obtaining an NVIDIA API key (free provider)
+
+If you want to use NVIDIA Build-hosted models or an NVIDIA inference gateway as your provider, follow these general steps to obtain an API key / access token. The exact UI labels may change; the steps below are intentionally generic and should work for the NVIDIA Build experience.
+
+1. Create an NVIDIA Build account
+   - Visit the NVIDIA Models catalog: https://build.nvidia.com/models?filters=publisher%3Ameta%2Cpublisher%3Agoogle%2Cpublisher%3Aopenai%2Cpublisher%3Adeepseek_ai%2Cpublisher%3Adeepmind%2Cpublisher%3Amicrosoft%2Cpublisher%3Az_ai
+   - Sign up or sign in with your NVIDIA account (you may be asked to verify your email).
+
+2. Locate the API / Developer section
+   - After signing in, open the dashboard or account area. Look for menu items such as "API Keys", "Access Tokens", "Developer", or "Account Settings".
+   - If you cannot find it, check the NVIDIA Build documentation or the model page for a "Get API key" or "Get started" link.
+
+3. Generate a key or token
+   - Use the dashboard's "Create API Key" (or similar) button. Give the key a descriptive name (e.g., "AI-Chatbot-local-dev").
+   - Some providers offer a free tier; check usage limits and quotas. Copy the generated key/token — you will not always be able to view it again.
+
+4. Configure your environment
+   - Paste the key into your .env file using the variable name your app expects. Example:
+
+```dotenv
+NVIDIA_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+NVIDIA_ENDPOINT=https://api.build.nvidia.com/v1/infer
+MODEL_PROVIDER=nvidia
+```
+
+- If the provider requires Authorization in requests, the typical header is:
+
+Authorization: Bearer <NVIDIA_API_KEY>
+
+Example curl (replace the endpoint and payload with the model's docs):
+
+```bash
+curl -X POST "$NVIDIA_ENDPOINT/models/<MODEL_ID>/invoke" \
+  -H "Authorization: Bearer $NVIDIA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "input": "Hello world" }'
+```
+
+Notes & troubleshooting
+
+- Free tiers and quotas: NVIDIA Build may offer free trials or free-tier usage for selected models; review the billing and usage page in your account to avoid unexpected charges.
+- Model selection: the Models catalog link above lists many publishers (Meta, Google, OpenAI, DeepMind, Microsoft, etc.). Not all models are hosted or available under the same terms—check the model's page for usage limits and pricing.
+- Local GPU inference: if you prefer to run models locally (instead of connecting to a hosted NVIDIA endpoint), you do not need an API key — instead, set MODEL_PROVIDER=local and configure the local runtime path in your app config.
 
 API Reference
 
